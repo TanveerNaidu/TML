@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en" data-base="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tanveer Naidu — Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Anton&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* Inlined so it survives external-stylesheet caching: the spiral label is
+     desktop-only; mobile shows "Full list" instead. */
+  .view-toggle .vt-narrow { display: none; }
+  @media (max-width: 700px) {
+    .view-toggle .vt-wide { display: none !important; }
+    .view-toggle .vt-narrow { display: inline !important; }
+  }
+
+  /* ======================================================
+     CINEMA HERO (scroll-driven frame-sequence hero + about)
+  ====================================================== */
+  .eyebrow .dot { width:7px; height:7px; border-radius:50%; background:var(--accent); display:inline-block; }
+
+  /* ---------- LOADER ---------- */
+  .loader { position:fixed; inset:0; z-index:200; background:#15130f; color:#f4f1ea;
+    overflow:hidden; padding:var(--edge);
+    transition: transform 1.05s cubic-bezier(0.76,0,0.24,1); }
+  .loader.done { transform:translateY(-101%); pointer-events:none; }
+  .loader .pre-eyebrow { position:absolute; top:var(--edge); left:var(--edge);
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--ink-soft);
+    display:flex; align-items:center; gap:.6em; }
+  .loader .pre-eyebrow .dot { width:6px; height:6px; border-radius:50%; background:var(--accent); }
+  .loader .pre-title { position:absolute; left:var(--edge); bottom:clamp(70px,13vh,150px);
+    font-family:var(--font-display); font-weight:900; text-transform:uppercase;
+    line-height:.9; letter-spacing:-.03em;
+    font-size:clamp(46px,11vw,200px); }
+  .loader .pre-title .pl { display:block; overflow:hidden; }
+  .loader .pre-title .pl > span { display:block; transform:translateY(110%);
+    animation: preRise .95s cubic-bezier(0.22,1,0.36,1) forwards; }
+  .loader .pre-title .pl:nth-child(1) > span { animation-delay:.1s; }
+  .loader .pre-title .pl:nth-child(2) > span { animation-delay:.22s; }
+  .loader .pre-title em { font-style:normal; color:var(--accent); }
+  @keyframes preRise { to { transform:none; } }
+  .loader .pre-count { position:absolute; right:var(--edge); bottom:clamp(40px,8vh,80px);
+    font-family:var(--font-display); font-weight:900; line-height:1;
+    font-size:clamp(40px,7vw,96px); letter-spacing:-.02em; }
+  .loader .pre-count .pcts { color:var(--accent); }
+  .loader .pre-bar { position:absolute; left:0; bottom:0; height:3px; width:100%; background:rgba(255,255,255,.12); }
+  .loader .pre-bar i { display:block; height:100%; width:0; background:var(--accent); transition: width .2s linear; }
+  @media (max-width:600px) {
+    .loader .pre-title { font-size:clamp(38px,13vw,96px); bottom:clamp(60px,10vh,110px); }
+    .loader .pre-count { font-size:clamp(36px,10vw,72px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .loader .pre-title .pl > span { animation:none; transform:none; }
+  }
+
+  /* ---------- CINEMA ---------- */
+  .cinema { position:relative; height:640vh; background:var(--bg); }
+  .cinema-sticky { position:sticky; top:0; height:100vh; width:100%;
+    overflow:hidden; isolation:isolate; }
+  #seq { position:absolute; inset:0; width:100%; height:100%; display:block;
+    filter: brightness(.93) contrast(1.04) saturate(.92);
+    transform-origin: center center; }
+  .cine-scrim { position:absolute; inset:0; z-index:2; pointer-events:none;
+    background: linear-gradient(to top,rgba(12,11,10,.92) 0%,rgba(12,11,10,.35) 26%,transparent 52%),
+                linear-gradient(to bottom,rgba(12,11,10,.55),transparent 34%); }
+  .cine-wash { position:absolute; inset:0; z-index:1; pointer-events:none; mix-blend-mode:multiply;
+    background: linear-gradient(180deg,rgba(22,36,54,.22) 0%,rgba(9,15,24,.42) 100%); }
+  .cine-cool { position:absolute; inset:0; z-index:1; pointer-events:none; mix-blend-mode:soft-light;
+    background: radial-gradient(130% 100% at 50% 30%,rgba(96,150,200,.28),transparent 65%); }
+  .cine-top { position:absolute; top:0; left:0; right:0; z-index:5;
+    padding:clamp(22px,3.4vw,40px) var(--edge);
+    display:flex; align-items:center; justify-content:space-between; pointer-events:none; }
+  .cine-top .mark { font-weight:800; letter-spacing:-.02em; font-size:17px; color:#fff; }
+  .cine-top .eyebrow { color:rgba(255,255,255,.82); }
+
+  /* hero copy */
+  .cine-hero { position:absolute; left:0; right:0; bottom:0; z-index:5;
+    padding:0 var(--edge) clamp(34px,6vh,70px); color:#fff; will-change:opacity,transform; }
+  .cine-hero h1 { font-weight:900; text-transform:uppercase; line-height:.84;
+    letter-spacing:-.025em; font-size:clamp(54px,13vw,188px); margin:0; }
+  .cine-hero h1 .ghost { -webkit-text-stroke:1.6px rgba(255,255,255,.82); color:transparent; }
+  .cine-hero .row { display:flex; flex-wrap:wrap; gap:22px;
+    justify-content:space-between; align-items:flex-end; margin-top:clamp(20px,3.2vh,40px); }
+  .cine-hero .lede { max-width:42ch; font-size:clamp(15px,1.35vw,19px); line-height:1.5;
+    color:rgba(255,255,255,.9); }
+  .cine-hero .lede b { color:#fff; font-weight:700; }
+
+  /* progress rail */
+  .rail { position:absolute; left:var(--edge); right:var(--edge); bottom:20px; z-index:6;
+    height:2px; background:rgba(255,255,255,.16); will-change:opacity; }
+  .rail i { position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--accent); }
+
+  /* staged story beats */
+  .beat { position:absolute; z-index:5; bottom:clamp(54px,13vh,140px);
+    color:#fff; pointer-events:none; }
+  .beat[data-align="left"]  { left:var(--edge); max-width:min(640px,66vw); }
+  .beat--top { bottom:auto; top:clamp(70px,10vh,110px); max-height:38vh; overflow:hidden; }
+  .beat[data-align="right"] { right:var(--edge); max-width:min(460px,46vw);
+    text-align:right; display:flex; flex-direction:column; align-items:flex-end;
+    bottom: clamp(100px, 20vh, 200px); }
+  [data-beat] { opacity:0; transform:translateY(28px); will-change:opacity,transform; }
+  .beat-k { font-family:var(--font-mono); font-size:12px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--accent); display:block; margin-bottom:18px; }
+  .beat-lede { font-size:clamp(18px,2.6vw,36px); font-weight:700; line-height:1.12;
+    letter-spacing:-.018em; text-wrap:balance; max-width:44ch; }
+  .beat-lede b { color:var(--accent); font-weight:700; }
+  .beat-bio { font-size:clamp(20px,2.5vw,33px); font-weight:500; line-height:1.32;
+    letter-spacing:-.01em; color:rgba(255,255,255,.92); }
+  .beat-bio b { color:#fff; font-weight:700; }
+  .beat-bio-sm { font-size:clamp(14px,1.5vw,18px); font-weight:400; line-height:1.45;
+    color:rgba(255,255,255,.82); margin-top:14px; max-width:48ch; }
+  .beat-spec { width:min(300px,100%); display:flex; justify-content:space-between; gap:18px;
+    padding:15px 0; border-bottom:1px solid rgba(255,255,255,.2); }
+  .beat-spec:first-of-type { border-top:1px solid rgba(255,255,255,.2); }
+  .beat-spec dt { font-family:var(--font-mono); font-size:12px; letter-spacing:.16em;
+    text-transform:uppercase; color:rgba(255,255,255,.6); }
+  .beat-spec dd { font-size:17px; font-weight:700; }
+  .beat-tags { display:flex; flex-wrap:wrap; gap:10px; max-width:46vw; }
+  .beat-tags span { font-family:var(--font-mono); font-size:12px; letter-spacing:.12em;
+    text-transform:uppercase; color:#fff; border:1px solid rgba(255,255,255,.32);
+    border-radius:999px; padding:9px 16px; }
+
+  @media (max-width:820px) {
+    .cine-hero .row { gap:16px; }
+    .beat { bottom:clamp(72px,15vh,130px); }
+    .beat[data-align="left"],.beat[data-align="right"] { max-width:84vw; }
+  }
+  @media (max-width:600px) {
+    .cine-hero { padding-bottom:clamp(26px,5vh,46px); }
+    .cine-hero h1 { font-size:clamp(38px,15vw,72px); line-height:.9; }
+    .cine-hero .row { flex-direction:column; align-items:flex-start; gap:18px; margin-top:16px; }
+    .cine-hero .lede { max-width:none; font-size:14px; }
+    .cine-hero .hero-cta { padding:12px 18px !important; font-size:13px; }
+    .cine-top .mark { font-size:14px; }
+    .cine-top .eyebrow { font-size:10px; letter-spacing:.16em; }
+    .cine-top .eyebrow span:not(.dot) { display:none; }
+
+    .beat { bottom:clamp(60px,12vh,110px); }
+    .beat--top { top:clamp(58px,8vh,84px); max-height:none; bottom:auto; }
+    .beat[data-align="left"] { max-width:88vw; }
+    .beat[data-align="right"] { right:var(--edge); left:var(--edge); max-width:none;
+      text-align:left; align-items:flex-start; bottom:clamp(60px,12vh,110px); }
+    .beat-k { font-size:10px; letter-spacing:.18em; margin-bottom:10px; }
+    .beat-lede { font-size:clamp(16px,5vw,22px); }
+    .beat-bio { font-size:clamp(17px,5.4vw,22px); }
+    .beat-bio-sm { font-size:13px; max-width:none; }
+    .beat-spec { width:100%; padding:11px 0; }
+    .beat-spec dt,.beat-spec dd { font-size:12px; }
+    .beat-tags { max-width:none; gap:8px; }
+    .beat-tags span { font-size:10px; padding:7px 12px; }
+
+    /* only one beat group visible at a time on small screens to avoid overlap/crowding */
+    .beat[data-align="right"] { display:none; }
+  }
+  /* short / landscape viewports: keep beats from overflowing the visible sticky frame */
+  @media (max-height:520px) {
+    .cine-hero h1 { font-size:clamp(30px,9vw,56px); }
+    .cine-hero .row { margin-top:10px; }
+    .beat--top { top:12px; }
+    .beat, .beat[data-align="right"] { bottom:12px; }
+    .beat-bio-sm:nth-of-type(2) { display:none; }
+  }
+
+  /* Transparent nav over cinema */
+  .site-nav { transition: background 0.4s ease, backdrop-filter 0.4s ease !important; }
+  .cinema-nav .site-nav { background: transparent !important;
+    backdrop-filter: none !important; box-shadow: none !important; border-bottom: none !important; }
+</style>
+</head>
+<body class="grain-on">
+
+<!-- ============ LOADER ============ -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="pre-eyebrow"><span class="dot"></span>Tanveer Naidu · Photography</div>
+  <h2 class="pre-title">
+    <span class="pl"><span>Through</span></span>
+    <span class="pl"><span>My <em>Lens</em></span></span>
+  </h2>
+  <div class="pre-count"><span id="pct">00</span><span class="pcts">%</span></div>
+  <div class="pre-bar"><i id="barFill"></i></div>
+</div>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ============ NAV ============ -->
+<header class="site-nav" id="nav">
+  <a href="#top" class="brand"><span class="js-name-short">T. Naidu</span><sup>®</sup></a>
+  <nav class="nav-links">
+    <a href="#work" data-nav>Work</a>
+    <a href="#cinema" data-nav>About</a>
+    <a href="#index" data-nav>Index</a>
+    <a href="Full Gallery.html">Full Gallery</a>
+    <a href="#contact" data-nav>Contact</a>
+  </nav>
+  <div class="nav-status">Est. 2026</div>
+  <button class="nav-menu-btn" id="menuBtn">Menu</button>
+</header>
+
+<main id="top">
+
+  <!-- ============ CINEMA (scroll-driven frame-sequence hero + about) ============ -->
+  <section class="cinema" id="cinema" data-screen-label="Cinema" data-about="true">
+    <div class="cinema-sticky">
+      <canvas id="seq"></canvas>
+      <div class="cine-wash"></div>
+      <div class="cine-cool"></div>
+      <div class="cine-scrim"></div>
+
+      <div class="cine-top">
+        <span class="mark">Through&nbsp;My&nbsp;Lens</span>
+        <span class="eyebrow"><span class="dot"></span>Photographer · Visual Storyteller</span>
+      </div>
+
+      <!-- hero copy (fades out as scroll begins) -->
+      <div class="cine-hero" id="heroCopy">
+        <h1>Every<br /><span class="ghost">Frame, a</span><br />Question.</h1>
+        <div class="row">
+          <p class="lede"><b>Tanveer Naidu</b> — two continents, one lens. Documenting the world through raw light and honest moments.</p>
+          <a href="#work" class="hero-cta" style="padding:14px 22px">View photography <span class="arr">→</span></a>
+        </div>
+      </div>
+
+      <!-- staged ABOUT story — revealed across the scroll, held at the end -->
+      <div class="beat beat--top" data-align="left">
+        <span class="beat-k" data-beat data-in="0.16" data-out="1.06">About — the story so far</span>
+        <p class="beat-lede" data-beat data-in="0.17" data-out="1.06">I find meaning in the details — the <b>light</b> in a photograph, the idea buried inside a page, the satisfaction of building something from nothing.</p>
+      </div>
+
+      <div class="beat" data-align="left">
+        <span class="beat-k" data-beat data-in="0.40" data-out="1.06">Tanveer Naidu</span>
+        <p class="beat-bio" data-beat data-in="0.42" data-out="1.06">A photographer and visual storyteller. Whether through a camera lens or a blank canvas, I'm always in the act of creating.</p>
+        <p class="beat-bio-sm" data-beat data-in="0.52" data-out="1.06">My ambition is still forming — and I love that. A life shaped by creativity, curiosity, and a refusal to stop learning.</p>
+        <p class="beat-bio-sm" data-beat data-in="0.60" data-out="1.06">More work is on the way — I'm continuously shooting and uploading new collections. Stay tuned.</p>
+        <div class="beat-tags" data-beat data-in="0.70" data-out="1.06">
+          <span>Photography</span><span>Editing</span><span>Creating</span><span>Learning</span><span>Exploring</span>
+        </div>
+      </div>
+
+      <div class="beat" data-align="right">
+        <span class="beat-k" data-beat data-in="0.54" data-out="1.06">The setup</span>
+        <dl class="beat-spec" data-beat data-in="0.56" data-out="1.06"><dt>Main Camera</dt><dd>Sony A6700</dd></dl>
+        <dl class="beat-spec" data-beat data-in="0.585" data-out="1.06"><dt>Lens</dt><dd>Sigma 30mm</dd></dl>
+        <dl class="beat-spec" data-beat data-in="0.61" data-out="1.06"><dt>Based</dt><dd>Two continents</dd></dl>
+        <dl class="beat-spec" data-beat data-in="0.635" data-out="1.06"><dt>Focus</dt><dd>Light &amp; honesty</dd></dl>
+      </div>
+
+      <div class="rail" id="rail"><i id="railFill"></i></div>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="marquee-item">Photography<span class="star">✦</span></span>
+      <span class="marquee-item">Light &amp; Shadow<span class="star">✦</span></span>
+      <span class="marquee-item">Sony ILCE-6700<span class="star">✦</span></span>
+      <span class="marquee-item">Long Focal Lengths<span class="star">✦</span></span>
+      <span class="marquee-item">Visual Storytelling<span class="star">✦</span></span>
+      <span class="marquee-item">Moments<span class="star">✦</span></span>
+      <span class="marquee-item">Photography<span class="star">✦</span></span>
+      <span class="marquee-item">CREATING
+
+✦</span>
+      <span class="marquee-item">Sony ILCE-6700<span class="star">✦</span></span>
+      <span class="marquee-item">Long Focal Lengths<span class="star">✦</span></span>
+      <span class="marquee-item">Visual Storytelling<span class="star">✦</span></span>
+      <span class="marquee-item">Moments<span class="star">✦</span></span>
+    </div>
+  </div>
+
+  <!-- ============ WORK / GALLERY ============ -->
+  <section class="sec" id="work" data-screen-label="Work">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label"><span class="section-num">( 02 )</span></div>
+        <span class="eyebrow" style="color:var(--dark-soft)">Selected frames</span>
+      </div>
+      <h2 class="sec-title">Frames &amp; <span class="italic-soft">moments</span></h2>
+    </div>
+    <div class="gallery-wrap">
+      <div class="gallery" id="gallery">
+        <article class="frame openable" data-no="01" data-title="Flight" data-exif="202mm · f/5.6 · 1/2000s · ISO400" data-loc="">
+          <div class="shot"><img loading="lazy" decoding="async" draggable="false" src="work-seagull.jpg" alt="Seagull over dark ocean" class="frame-img" style="object-position:center 60%" /></div>
+          <div class="frame-meta"><span class="ttl">Flight</span><span class="no">/ 01</span></div>
+          <div class="frame-exif">202mm · f/5.6 · 1/2000s · ISO400</div>
+        </article>
+        <article class="frame openable" data-no="02" data-title="Sunset" data-exif="35mm · f/2.8 · 1/60s · ISO800" data-loc="">
+          <div class="shot"><img loading="lazy" decoding="async" draggable="false" src="work-sunset.jpg" alt="Figure at sunset on the rocks" class="frame-img" style="object-position:center 45%" /></div>
+          <div class="frame-meta"><span class="ttl">Sunset</span><span class="no">/ 02</span></div>
+          <div class="frame-exif">35mm · f/2.8 · 1/60s · ISO800</div>
+        </article>
+        <article class="frame openable" data-no="03" data-title="Cruising Altitude" data-exif="202mm · f/6.3 · 1/1000s · ISO100" data-loc="">
+          <div class="shot"><img loading="lazy" decoding="async" draggable="false" src="work-plane.jpg" alt="Plane in teal sky" class="frame-img" style="object-position:center center" /></div>
+          <div class="frame-meta"><span class="ttl">Cruising Altitude</span><span class="no">/ 03</span></div>
+          <div class="frame-exif">202mm · f/6.3 · 1/1000s · ISO100</div>
+        </article>
+        <article class="frame openable" data-no="04" data-title="Red Earth" data-exif="202mm · f/5.6 · 1/640s · ISO200" data-loc="">
+          <div class="shot"><img loading="lazy" decoding="async" draggable="false" src="work-excavator.jpg" alt="Excavator on red earth" class="frame-img" style="object-position:center center" /></div>
+          <div class="frame-meta"><span class="ttl">Red Earth</span><span class="no">/ 04</span></div>
+          <div class="frame-exif">202mm · f/5.6 · 1/640s · ISO200</div>
+        </article>
+        <article class="frame openable" data-no="05" data-title="Bloom" data-exif="85mm · f/2.8 · 1/500s · ISO400" data-loc="">
+          <div class="shot"><img loading="lazy" decoding="async" draggable="false" src="work-plant.jpg" alt="Plant against city bokeh" class="frame-img" style="object-position:center center" /></div>
+          <div class="frame-meta"><span class="ttl">Bloom</span><span class="no">/ 05</span></div>
+          <div class="frame-exif">85mm · f/2.8 · 1/500s · ISO400</div>
+        </article>
+      </div>
+      <div class="wrap">
+        <div class="gallery-foot">
+          <span class="hint">Drag or swipe to explore</span>
+          <span class="gallery-bar"><i class="gbar-fill"></i></span>
+          <span class="gallery-count"><b class="gnow">01</b> / 05</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INDEX / SCENES ============ -->
+  <section class="sec" id="index" data-screen-label="Index">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label"><span class="section-num">( 03 )</span></div>
+        <span class="eyebrow">Types &amp; scenes</span>
+      </div>
+      <h2 class="sec-title" style="margin-bottom:clamp(24px,4vw,56px)">Scenes &amp; <span class="italic-soft">series</span></h2>
+      <div class="view-toggle" data-reveal>
+        <span class="vt-label">View as</span>
+        <span class="vt-opt is-on">Index</span>
+        <a class="vt-opt" href="Full Gallery.html"><span class="vt-wide">Spiral ↗</span><span class="vt-narrow">Full list ↗</span></a>
+      </div>
+      <div class="scenes">
+        <a class="scene" href="#south-africa" data-preview="sa-madiba.jpg" data-preview-label="South Africa" data-preview-gallery="sa-madiba.jpg|sa-fourways.jpg|sa-glass.jpg|sa-sandton.jpg|sa-tower.jpg"><span class="s-no">01</span><span class="s-name">South Africa</span><span class="s-meta"><span class="s-count">— frames</span><span class="s-arr">↗</span></span></a>
+        <a class="scene" href="#india" data-preview="ind-minaret.jpg" data-preview-label="India" data-preview-gallery="ind-minaret.jpg|ind-charminar.jpg|ind-pigeons.jpg|ind-bazaar.jpg|ind-secretariat.jpg"><span class="s-no">02</span><span class="s-name">India</span><span class="s-meta"><span class="s-count">— frames</span><span class="s-arr">↗</span></span></a>
+        <a class="scene" href="#nature" data-preview="nat-mist.jpg" data-preview-label="Nature" data-preview-gallery="nat-mist.jpg|nat-clouds.jpg|nat-dragonfly.jpg|nat-terraces.jpg"><span class="s-no">03</span><span class="s-name">Nature</span><span class="s-meta"><span class="s-count">— frames</span><span class="s-arr">↗</span></span></a>
+        <a class="scene" href="#street" data-preview="str-sunday.jpg" data-preview-label="Street" data-preview-gallery="str-sunday.jpg|str-corner.jpg|str-gridlock.jpg|str-market.jpg|str-911.jpg"><span class="s-no">04</span><span class="s-name">Street</span><span class="s-meta"><span class="s-count">— frames</span><span class="s-arr">↗</span></span></a>
+      </div>
+    </div>
+    <div class="scene-preview" id="scenePreview"><div class="sp-img"></div><div class="sp-label"></div></div>
+  </section>
+
+  <!-- ============ SOUTH AFRICA ============ -->
+  <section class="sec topic-sec" id="south-africa" data-screen-label="South Africa">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label"><a href="#index" class="topic-back-link">← Index</a></div>
+        <span class="eyebrow" style="color:var(--panel-sub)">Scene 01 / 04</span>
+      </div>
+      <span class="topic-tag">South Africa</span>
+      <h2 class="sec-title">South Africa</h2>
+    </div>
+    <div class="gallery-wrap">
+      <div class="gallery">
+        <article class="frame openable" data-no="01" data-title="The Tower" data-exif="202mm · f/6.3 · 1/640s · ISO100" data-loc="Johannesburg"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="sa-tower.jpg" alt="Skyscraper against stormy sky" class="frame-img" style="object-position:center center" /></div><div class="frame-meta"><span class="ttl">The Tower</span><span class="no">/ 01</span></div><div class="frame-exif">202mm · f/6.3 · 1/640s · ISO100</div></article>
+        <article class="frame openable" data-no="02" data-title="Sandton City" data-exif="85mm · f/5.6 · 1/800s · ISO200" data-loc="Johannesburg"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="sa-sandton.jpg" alt="Sandton City tower" class="frame-img" style="object-position:center 35%" /></div><div class="frame-meta"><span class="ttl">Sandton City</span><span class="no">/ 02</span></div><div class="frame-exif">85mm · f/5.6 · 1/800s · ISO200</div></article>
+        <article class="frame openable" data-no="03" data-title="Glass &amp; Steel" data-exif="35mm · f/5.6 · 1/640s · ISO200" data-loc="Johannesburg"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="sa-glass.jpg" alt="Glass office building" class="frame-img" style="object-position:center 45%" /></div><div class="frame-meta"><span class="ttl">Glass &amp; Steel</span><span class="no">/ 03</span></div><div class="frame-exif">35mm · f/5.6 · 1/640s · ISO200</div></article>
+        <article class="frame openable" data-no="04" data-title="Madiba" data-exif="35mm · f/4.0 · 1/1000s · ISO200" data-loc="Johannesburg"><div class="shot" style="aspect-ratio:3/4"><img loading="lazy" decoding="async" draggable="false" src="sa-madiba.jpg" alt="Mandela statue" class="frame-img" style="object-position:center 30%" /></div><div class="frame-meta"><span class="ttl">Madiba</span><span class="no">/ 04</span></div><div class="frame-exif">35mm · f/4.0 · 1/1000s · ISO200</div></article>
+        <article class="frame openable" data-no="05" data-title="Fourways" data-exif="35mm · f/4.0 · 1/500s · ISO400" data-loc="Johannesburg"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="sa-fourways.jpg" alt="Fourways intersection at dusk" class="frame-img" style="object-position:center center" /></div><div class="frame-meta"><span class="ttl">Fourways</span><span class="no">/ 05</span></div><div class="frame-exif">35mm · f/4.0 · 1/500s · ISO400</div></article>
+      </div>
+      <div class="wrap"><div class="gallery-foot"><span class="hint">Drag or swipe</span><span class="gallery-bar"><i class="gbar-fill"></i></span><span class="gallery-count"><b class="gnow">01</b> / 05</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ INDIA ============ -->
+  <section class="sec topic-sec" id="india" data-screen-label="India">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label"><a href="#index" class="topic-back-link">← Index</a></div>
+        <span class="eyebrow" style="color:var(--panel-sub)">Scene 02 / 04</span>
+      </div>
+      <span class="topic-tag">India</span>
+      <h2 class="sec-title">India</h2>
+    </div>
+    <div class="gallery-wrap">
+      <div class="gallery">
+        <article class="frame openable" data-no="01" data-title="Minaret" data-exif="24mm · f/4.0 · 1/500s · ISO400" data-loc="Hyderabad"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="ind-minaret.jpg" alt="Charminar minaret framed through market stalls" class="frame-img" style="object-position:center 25%" /></div><div class="frame-meta"><span class="ttl">Minaret</span><span class="no">/ 01</span></div><div class="frame-exif">24mm · f/4.0 · 1/500s · ISO400</div></article>
+        <article class="frame openable" data-no="02" data-title="Charminar" data-exif="50mm · f/5.6 · 1/640s · ISO200" data-loc="Hyderabad"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="ind-charminar.jpg" alt="Charminar monument" class="frame-img" style="object-position:center 55%" /></div><div class="frame-meta"><span class="ttl">Charminar</span><span class="no">/ 02</span></div><div class="frame-exif">50mm · f/5.6 · 1/640s · ISO200</div></article>
+        <article class="frame openable" data-no="03" data-title="Dusk" data-exif="202mm · f/6.3 · 1/500s · ISO400" data-loc="Hyderabad"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="ind-secretariat.jpg" alt="Secretariat at dusk" class="frame-img" style="object-position:center 60%" /></div><div class="frame-meta"><span class="ttl">Dusk</span><span class="no">/ 03</span></div><div class="frame-exif">202mm · f/6.3 · 1/500s · ISO400</div></article>
+        <article class="frame openable" data-no="04" data-title="The Bazaar" data-exif="24mm · f/4.0 · 1/500s · ISO400" data-loc="Hyderabad"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="ind-bazaar.jpg" alt="Busy bazaar street" class="frame-img" style="object-position:center center" /></div><div class="frame-meta"><span class="ttl">The Bazaar</span><span class="no">/ 04</span></div><div class="frame-exif">24mm · f/4.0 · 1/500s · ISO400</div></article>
+        <article class="frame openable" data-no="05" data-title="The Keeper" data-exif="202mm · f/5.6 · 1/800s · ISO400" data-loc="Hyderabad"><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="ind-pigeons.jpg" alt="Man feeding pigeons" class="frame-img" style="object-position:center 45%" /></div><div class="frame-meta"><span class="ttl">The Keeper</span><span class="no">/ 05</span></div><div class="frame-exif">202mm · f/5.6 · 1/800s · ISO400</div></article>
+      </div>
+      <div class="wrap"><div class="gallery-foot"><span class="hint">Drag or swipe</span><span class="gallery-bar"><i class="gbar-fill"></i></span><span class="gallery-count"><b class="gnow">01</b> / 05</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ NATURE ============ -->
+  <section class="sec topic-sec" id="nature" data-screen-label="Nature">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label"><a href="#index" class="topic-back-link">← Index</a></div>
+        <span class="eyebrow" style="color:var(--panel-sub)">Scene 03 / 04</span>
+      </div>
+      <span class="topic-tag">Nature</span>
+      <h2 class="sec-title"><span>Nature</span></h2>
+    </div>
+    <div class="gallery-wrap">
+      <div class="gallery">
+        <article class="frame openable" data-no="01" data-title="Mist" data-exif="202mm · f/5.6 · 1/400s · ISO400" data-loc=""><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="nat-mist.jpg" alt="Misty treeline" class="frame-img" style="object-position:center center" /></div><div class="frame-meta"><span class="ttl">Mist</span><span class="no">/ 01</span></div><div class="frame-exif">202mm · f/5.6 · 1/400s · ISO400</div></article>
+        <article class="frame openable" data-no="02" data-title="Above the Clouds" data-exif="202mm · f/5.6 · 1/500s · ISO200" data-loc=""><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="nat-clouds.jpg" alt="Village above the clouds" class="frame-img" style="object-position:center 40%" /></div><div class="frame-meta"><span class="ttl">Above the Clouds</span><span class="no">/ 02</span></div><div class="frame-exif">202mm · f/5.6 · 1/500s · ISO200</div></article>
+        <article class="frame openable" data-no="03" data-title="Terraces" data-exif="85mm · f/8.0 · 1/640s · ISO100" data-loc=""><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="nat-terraces.jpg" alt="Terraced hillside" class="frame-img" style="object-position:center center" /></div><div class="frame-meta"><span class="ttl">Terraces</span><span class="no">/ 03</span></div><div class="frame-exif">85mm · f/8.0 · 1/640s · ISO100</div></article>
+        <article class="frame openable" data-no="04" data-title="Dragonfly" data-exif="85mm · f/4.0 · 1/500s · ISO400" data-loc=""><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="nat-dragonfly.jpg" alt="Dragonfly on a stem" class="frame-img" style="object-position:center 38%" /></div><div class="frame-meta"><span class="ttl">Dragonfly</span><span class="no">/ 04</span></div><div class="frame-exif">85mm · f/4.0 · 1/500s · ISO400</div></article>
+      </div>
+      <div class="wrap"><div class="gallery-foot"><span class="hint">Drag or swipe</span><span class="gallery-bar"><i class="gbar-fill"></i></span><span class="gallery-count"><b class="gnow">01</b> / 04</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ STREET ============ -->
+  <section class="sec topic-sec" id="street" data-screen-label="Street">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label"><a href="#index" class="topic-back-link">← Index</a></div>
+        <span class="eyebrow" style="color:var(--panel-sub)">Scene 04 / 04</span>
+      </div>
+      <span class="topic-tag">Street</span>
+      <h2 class="sec-title">Street life</h2>
+    </div>
+    <div class="gallery-wrap">
+      <div class="gallery">
+        <article class="frame openable" data-no="01" data-title="Gridlock" data-exif="85mm · f/5.6 · 1/640s · ISO400" data-loc=""><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="str-gridlock.jpg" alt="Dense city traffic" class="frame-img" style="object-position:center 55%" /></div><div class="frame-meta"><span class="ttl">Gridlock</span><span class="no">/ 01</span></div><div class="frame-exif">85mm · f/5.6 · 1/640s · ISO400</div></article>
+        <article class="frame openable" data-no="02" data-title="The Market" data-exif="50mm · f/4.0 · 1/800s · ISO200" data-loc=""><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="str-market.jpg" alt="Colourful market street" class="frame-img" style="object-position:center center" /></div><div class="frame-meta"><span class="ttl">The Market</span><span class="no">/ 02</span></div><div class="frame-exif">50mm · f/4.0 · 1/800s · ISO200</div></article>
+        <article class="frame openable" data-no="03" data-title="911" data-exif="135mm · f/4.0 · 1/640s · ISO400" data-loc=""><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="str-911.jpg" alt="Porsche 911 at Dunkeld Corner" class="frame-img" style="object-position:center 58%" /></div><div class="frame-meta"><span class="ttl">911</span><span class="no">/ 03</span></div><div class="frame-exif">135mm · f/4.0 · 1/640s · ISO400</div></article>
+        <article class="frame openable" data-no="04" data-title="Sunday Drive" data-exif="202mm · f/5.6 · 1/500s · ISO200" data-loc=""><div class="shot" style="aspect-ratio:3/4"><img loading="lazy" decoding="async" draggable="false" src="str-sunday.jpg" alt="Vintage Mercedes on autumn street" class="frame-img" style="object-position:center 42%" /></div><div class="frame-meta"><span class="ttl">Sunday Drive</span><span class="no">/ 04</span></div><div class="frame-exif">202mm · f/5.6 · 1/500s · ISO200</div></article>
+        <article class="frame openable" data-no="05" data-title="Corner" data-exif="50mm · f/4.0 · 1/640s · ISO400" data-loc=""><div class="shot"><img loading="lazy" decoding="async" draggable="false" src="str-corner.jpg" alt="Street corner vendors" class="frame-img" style="object-position:center center" /></div><div class="frame-meta"><span class="ttl">Corner</span><span class="no">/ 05</span></div><div class="frame-exif">50mm · f/4.0 · 1/640s · ISO400</div></article>
+      </div>
+      <div class="wrap"><div class="gallery-foot"><span class="hint">Drag or swipe</span><span class="gallery-bar"><i class="gbar-fill"></i></span><span class="gallery-count"><b class="gnow">01</b> / 05</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section class="sec stats" data-screen-label="Stats">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label"><span class="section-num">( 04 )</span></div>
+        <span class="eyebrow">Field notes</span>
+      </div>
+      <div class="stat-grid">
+        <div class="stat" data-reveal><div class="num"><span class="count" data-target="1500">0</span><span class="suf">+</span></div><div class="cap">Frames captured</div></div>
+        <div class="stat" data-reveal data-reveal-delay="1"><div class="num">04</div><div class="cap">Scene collections</div></div>
+        <div class="stat" data-reveal data-reveal-delay="2"><div class="num"><span class="count" data-target="2">0</span></div><div class="cap">Continents documented</div></div>
+        <div class="stat" data-reveal data-reveal-delay="3"><div class="num"><span class="count" data-target="200">0</span><span class="suf">mm</span></div><div class="cap">Longest focal reach</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURE ============ -->
+  <section class="feature" data-screen-label="Feature">
+    <div class="feature-media"><video class="feature-bg-vid" id="featureVid" autoplay muted playsinline preload="auto" poster="feature-bg.jpg"><source src="feature-bg.mp4" type="video/mp4" /></video></div>
+    <div class="feature-scrim"></div>
+    <div class="wrap">
+      <blockquote class="feature-quote" data-reveal>
+        <p class="q" style="color: var(--accent)">ONE LENS, INFINITE PERSPECTIVES.</p>
+        <div class="by eq-grid">
+          <span class="eq-label">— Equipment</span>
+          <span class="eq-item">Sony A6700</span>
+          <span class="eq-item">Sony 18-135mm f/3.5-5.6</span>
+          <span class="eq-item">Sigma 30mm f/1.4</span>
+          <span class="eq-item">DJI RS4 Mini</span>
+        </div>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section class="sec" id="contact" data-screen-label="Contact">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label"><span class="section-num">( 05 )</span></div>
+        <span class="eyebrow">Get in touch</span>
+      </div>
+      <h2 class="contact-big">
+        <a href="https://instagram.com/tanveer_ttn" target="_blank" rel="noopener">
+          <span class="cb-word" data-text="LETS"><span>LETS</span></span>
+          <span class="cb-word" data-text="MAKE"><span>MAKE</span></span>
+          <span class="cb-word" data-text="SOMETHING"><span>SOMETHING</span></span>
+          <span class="cb-arr">↗</span>
+        </a>
+      </h2>
+      <div class="contact-row">
+        <div class="contact-col">
+          <h4>Instagram</h4>
+          <a class="lk" href="https://instagram.com/tanveer_ttn" target="_blank" rel="noopener">@tanveer_ttn</a>
+        </div>
+      </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-mark" style="font-size: 78px">THROUGH MY LENS</div>
+      <div class="foot-meta">EST. 2026 · © THROUGH MY LENS
+ALL RIGHTS RESERVED</div>
+    </div>
+    <div class="foot-bottom">
+      <span>TANVEER · 2026</span>
+      <span>Photographer · Visual Storyteller</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ LIGHTBOX ============ -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lb-close" id="lbClose" aria-label="Close">Close</button>
+  <div class="lb-inner">
+    <div class="lb-img"><image-slot id="lb-slot" fit="cover" placeholder=""></image-slot></div>
+    <div class="lb-info">
+      <div class="lb-no" id="lbNo">/ 01</div>
+      <div class="lb-ttl" id="lbTtl">Golden Hour</div>
+      <dl>
+        <dt>Focal</dt><dd id="lbFocal">202mm</dd>
+        <dt>Aperture</dt><dd id="lbAp">f/6.3</dd>
+        <dt>Shutter</dt><dd id="lbSh">1/500s</dd>
+        <dt>ISO</dt><dd id="lbIso">100</dd>
+        <dt>Location</dt><dd id="lbLoc">—</dd>
+      </dl>
+      <div class="lb-nav">
+        <button id="lbPrev" aria-label="Previous">←</button>
+        <button id="lbNext" aria-label="Next">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="image-slot.js"></script>
+<script src="app.js"></script>
+
+<!-- ============ CINEMA SCRIPT ============ -->
+<script>
+(function () {
+  "use strict";
+
+  var FRAMES = 151;
+  var PATH = function (i) { return "frames/f" + String(i + 1).padStart(3, "0") + ".jpg"; };
+
+  var canvas = document.getElementById("seq");
+  var ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+  var images = new Array(FRAMES);
+  // cap DPR lower than native — 2x on a large monitor means redrawing a huge
+  // canvas every scroll tick; 1.5x is visually indistinguishable at this scale
+  // and meaningfully cheaper per frame.
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  var current = -1;
+  canvas.style.willChange = "transform";
+
+  function resize() {
+    var w = window.innerWidth, h = window.innerHeight;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    var f = current < 0 ? 0 : current;
+    current = -1;
+    draw(f);
+  }
+
+  function draw(i) {
+    if (i === current) return;
+    var img = images[i];
+    if (!img || !img.complete || !img.naturalWidth) return;
+    current = i;
+    var cw = canvas.width, ch = canvas.height;
+    var ir = img.naturalWidth / img.naturalHeight;
+    var cr = cw / ch;
+    var dw, dh, dx, dy;
+    if (cr > ir) { dw = cw; dh = cw / ir; dx = 0; dy = (ch - dh) / 2; }
+    else { dh = ch; dw = ch * ir; dy = 0; dx = (cw - dw) / 2; }
+    ctx.fillStyle = "#0c0b0a";
+    ctx.fillRect(0, 0, cw, ch);
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
+
+  function drawNearest(i) {
+    if (images[i] && images[i].complete && images[i].naturalWidth) { draw(i); return; }
+    for (var r = 1; r < FRAMES; r++) {
+      if (images[i - r] && images[i - r].complete) { draw(i - r); return; }
+      if (images[i + r] && images[i + r].complete) { draw(i + r); return; }
+    }
+  }
+
+  var loaded = 0;
+  var loader = document.getElementById("loader");
+  var pctEl = document.getElementById("pct");
+  var barFill = document.getElementById("barFill");
+
+  function bump() {
+    loaded++;
+    var p = loaded / FRAMES;
+    pctEl.textContent = String(Math.round(p * 100)).padStart(2, "0");
+    barFill.style.width = (p * 100) + "%";
+    if (loaded === 1) { resize(); draw(0); }
+    if (nextToQueue < FRAMES) queueNext();
+    if (loaded >= FRAMES) finishLoad();
+  }
+  var finished = false;
+  function finishLoad() {
+    if (finished) return; finished = true;
+    loader.classList.add("done");
+    resize(); draw(0); onScroll();
+  }
+
+  function load(i) {
+    var img = new Image();
+    img.decoding = "async";
+    img.onload = function () { bump(); };
+    img.onerror = bump;
+    img.src = PATH(i);
+    images[i] = img;
+  }
+  // load in small concurrent batches instead of firing all 151 requests at
+  // once — avoids saturating the connection pool / main thread with a burst
+  // of simultaneous decodes, which is what was reading as "glitchy" on load.
+  var BATCH = 14, nextToQueue = 0;
+  function queueNext() {
+    var end = Math.min(nextToQueue + BATCH, FRAMES);
+    for (; nextToQueue < end; nextToQueue++) load(nextToQueue);
+  }
+  queueNext();
+  setTimeout(finishLoad, 12000);
+
+  var cinema = document.getElementById("cinema");
+  var heroCopy = document.getElementById("heroCopy");
+  var railFill = document.getElementById("railFill");
+  var docEl = document.documentElement;
+  var beats = [].slice.call(document.querySelectorAll("[data-beat]"));
+  beats.forEach(function (b) {
+    b._in = parseFloat(b.getAttribute("data-in"));
+    b._out = parseFloat(b.getAttribute("data-out"));
+  });
+
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function map(v, a, b, c, d) { return c + (clamp(v, a, b) - a) * (d - c) / (b - a); }
+
+  var targetP = 0, renderP = 0, raf = null;
+  var cinemaTotal = 0, cinemaBottomCache = 0;
+
+  function onScroll() {
+    // single layout read per scroll event, shared by render() below —
+    // avoids a second forced reflow from a duplicate getBoundingClientRect().
+    var rect = cinema.getBoundingClientRect();
+    cinemaTotal = cinema.offsetHeight - window.innerHeight;
+    cinemaBottomCache = rect.bottom;
+    var scrolled = clamp(-rect.top, 0, cinemaTotal);
+    targetP = cinemaTotal > 0 ? scrolled / cinemaTotal : 0;
+    if (!raf) raf = requestAnimationFrame(render);
+  }
+
+  function render() {
+    raf = null;
+    renderP = targetP;
+
+    var frame = Math.round(renderP * (FRAMES - 1));
+    drawNearest(frame);
+
+    railFill.style.width = (renderP * 100).toFixed(2) + "%";
+
+    canvas.style.transform = "translate3d(0," + (renderP * -3.5).toFixed(2) + "%,0) scale(1.08)";
+
+    var hf = 1 - map(renderP, 0.02, 0.16, 0, 1);
+    heroCopy.style.opacity = hf;
+    heroCopy.style.transform = "translateY(" + (-(1 - hf) * 40) + "px)";
+    heroCopy.style.pointerEvents = hf < 0.05 ? "none" : "auto";
+
+    for (var bi = 0; bi < beats.length; bi++) {
+      setBeat(beats[bi], renderP, beats[bi]._in, beats[bi]._out);
+    }
+
+    if (cinemaBottomCache > 0) {
+      docEl.classList.add("cinema-nav");
+    } else {
+      docEl.classList.remove("cinema-nav");
+    }
+  }
+
+  function setBeat(el, p, inS, outE) {
+    var hold = outE >= 1.0;
+    var span = outE - inS;
+    var fIn = inS + span * 0.30;
+    var fOut = outE - span * 0.22;
+    var o, y;
+    if (p <= inS) { o = 0; y = 28; }
+    else if (p < fIn) { o = map(p, inS, fIn, 0, 1); y = (1 - o) * 28; }
+    else if (hold || p <= fOut) { o = 1; y = 0; }
+    else if (p < outE) { o = 1 - map(p, fOut, outE, 0, 1); y = (1 - o) * -22; }
+    else { o = 0; y = -22; }
+    el.style.opacity = o.toFixed(3);
+    el.style.transform = "translateY(" + y.toFixed(1) + "px)";
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", function () { resize(); onScroll(); }, { passive: true });
+
+  // back/forward-cache restores (e.g. returning from Full Gallery via the
+  // browser back button) resurrect this exact page instance without
+  // re-running our load sequence \u2014 the canvas can come back sized for a
+  // stale viewport, or simply not repainted for the restored scroll offset.
+  // Force a clean resize + redraw whenever the page becomes visible again.
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted || finished) {
+      current = -1;
+      resize();
+      onScroll();
+      render();
+    }
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && finished) {
+      current = -1;
+      resize();
+      onScroll();
+      render();
+    }
+  });
+
+  var prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!prefersReduced) {
+    var autoScrolling = false;
+    var cooldownUntil = 0;
+    var DURATION = 900;
+
+    function cineEnd() { return cinema.offsetHeight - window.innerHeight; }
+    function easeInOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function animateTo(targetY) {
+      autoScrolling = true;
+      var prevBehavior = docEl.style.scrollBehavior;
+      docEl.style.scrollBehavior = "auto";
+      var startY = window.scrollY;
+      var dist = targetY - startY;
+      var startT = performance.now();
+      (function step(now) {
+        var t = Math.min((now - startT) / DURATION, 1);
+        window.scrollTo(0, Math.round(startY + dist * easeInOut(t)));
+        if (t < 1) { requestAnimationFrame(step); }
+        else {
+          autoScrolling = false;
+          // brief cooldown: trackpad momentum keeps sending wheel/touch events
+          // right after we land — without this they immediately re-trigger
+          // another hijack and the page stutters back and forth.
+          cooldownUntil = performance.now() + 500;
+          docEl.style.scrollBehavior = prevBehavior;
+        }
+      })(performance.now());
+    }
+
+    function tryHijack(dir) {
+      if (autoScrolling || performance.now() < cooldownUntil) return true;
+      var end = cineEnd();
+      var y = window.scrollY;
+      if (dir > 0 && y <= end * 0.06) { animateTo(end); return true; }
+      if (dir < 0 && y >= end * 0.94 && y <= end + 6) { animateTo(0); return true; }
+      return false;
+    }
+
+    window.addEventListener("wheel", function (e) {
+      if (autoScrolling) { e.preventDefault(); return; }
+      if (e.deltaY === 0) return;
+      if (tryHijack(e.deltaY > 0 ? 1 : -1)) e.preventDefault();
+    }, { passive: false });
+
+    var touchY = 0;
+    window.addEventListener("touchstart", function (e) {
+      touchY = e.touches[0].clientY;
+    }, { passive: true });
+    window.addEventListener("touchmove", function (e) {
+      if (autoScrolling) { e.preventDefault(); return; }
+      var dy = touchY - e.touches[0].clientY;
+      if (Math.abs(dy) < 6) return;
+      if (tryHijack(dy > 0 ? 1 : -1)) e.preventDefault();
+    }, { passive: false });
+
+    window.addEventListener("keydown", function (e) {
+      if (autoScrolling) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") { if (tryHijack(1)) e.preventDefault(); }
+      else if (e.key === "ArrowUp" || e.key === "PageUp") { if (tryHijack(-1)) e.preventDefault(); }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
